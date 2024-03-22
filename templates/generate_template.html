@@ -1,0 +1,13 @@
+{%- extends 'base.html' %}
+
+{%- block body %}
+    {%- if check_status == 'true' %}
+        <div class ="good_condition"> {{ git_check_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+    {%- else %}
+        <div class ="bad_condition"> {{ git_check_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+    {%- endif%}
+{%- endblock %}

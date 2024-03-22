@@ -1,0 +1,21 @@
+{%- extends 'base.html' %}
+
+{%- block body %}
+    {%- if git_check_status == 'Git Check Success' %}
+        <div class ="good_condition"> {{ git_check_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+        <form action="/generate_prefect_dbt_core_template" method="POST">
+            <input type="text" 
+                name="dbt_core_object_name_in_prefect" 
+                id = 'dbt_core_object_name_in_prefect'
+                placeholder="Your dbt core CLI block name in Prefect" 
+            />
+            <button type="submit" name="generate_prefect_dbt_core_template" value="true">Generate Template</button>
+        </form>
+    {%- else%}
+        <div class ="bad_condition"> {{ git_check_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+    {%- endif%}
+{%- endblock %}

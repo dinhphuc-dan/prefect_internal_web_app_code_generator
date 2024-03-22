@@ -1,0 +1,7 @@
+# python 3.10.0
+
+prefect==2.14.17
+prefect-dbt[bigquery]==0.4.1
+Flask==3.0.2
+waitress==3.0.0
+python-dotenv==1.0.1
