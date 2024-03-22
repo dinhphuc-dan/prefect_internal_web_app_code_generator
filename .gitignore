@@ -22,4 +22,8 @@ repo/
 profiles.yml
 .tmp
 .ssh
-.repo_to_generate/
+prefect*
+*.egg-info/
+*.egg
+
+

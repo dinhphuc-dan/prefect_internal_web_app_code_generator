@@ -51,5 +51,5 @@ def customize_logger(fuction_name):
 
 def text_formatter(text):
     current_time = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
-    text = f"{current_time} -- {text}"
-    return text
+    message = f"{current_time} -- {text}"
+    return message

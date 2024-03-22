@@ -1,7 +1,7 @@
 version: "3.9"
 services:  
   prefect-dbt-test:
-    image: phucdinh/test-prefect-dbt-core:test02
+    image: test-prefect-dbt-core:test03
     container_name: prefect-dbt-test
     restart: unless-stopped
     env_file:
