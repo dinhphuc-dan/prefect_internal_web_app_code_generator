@@ -4,6 +4,7 @@ from flask import request, make_response, current_app
 import logging
 from pathlib import Path
 from datetime import datetime
+import re
 
 ''' auth_required decorator is used for showing basic http login dialog for every route'''
 def auth_required(f):
@@ -49,7 +50,10 @@ def customize_logger(fuction_name):
 #     log = log.replace('\n', '<br>')
 
 
-def text_formatter(text):
+def text_formatter(text, command=None):
+    message = text.replace('\\n', '<br> &nbsp;&nbsp;&nbsp;&nbsp;')
     current_time = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
-    message = f"{current_time} -- {text}"
+    message = f"{current_time} -- {message}"
+    if command:
+        message = f"<br><br>{command.upper()} RESULT: <br> &nbsp;&nbsp;&nbsp;&nbsp; {message}"
     return message

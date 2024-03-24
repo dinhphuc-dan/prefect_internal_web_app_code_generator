@@ -1,13 +1,29 @@
 {%- extends 'base.html' %}
 
 {%- block body %}
-    {%- if git_check_status == 'Git Check Success' %}
-        <div class ="good_condition"> {{ git_check_status }} </div>
+    {%- if action_status == 'Succeeded' %}
+        <div class ="good_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>
         <div class="text-box"> {{ log | safe }} </div>
+        <form action="/deploy_dbt_command_to_prefect" method="POST">
+            <input type="text" 
+                name="dbt_command" 
+                id = 'dbt_command'
+                placeholder="Dbt Command to deploy to Prefect" 
+            />
+            <button type="submit" name="deploy_to_prefect" value="true">Deploy</button>
+        </form>
     {%- else%}
-        <div class ="bad_condition"> {{ git_check_status }} </div>
+        <div class ="bad_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>
         <div class="text-box"> {{ log | safe }} </div>
+        <form method="POST">
+            <input type="text" 
+                name="dbt_core_object_name_in_prefect" 
+                id = 'dbt_core_object_name_in_prefect'
+                placeholder="Your dbt core CLI block name in Prefect" 
+            />
+            <button type="submit" name="generate_prefect_dbt_core_button" value="true">Generate Template</button>
+        </form>
     {%- endif%}
 {%- endblock %}

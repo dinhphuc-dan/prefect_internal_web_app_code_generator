@@ -1,8 +1,8 @@
 {%- extends 'base.html' %}
 
 {%- block body %}
-    {%- if git_check_status == 'Git Check Success' %}
-        <div class ="good_condition"> {{ git_check_status }} </div>
+    {%- if action_status == 'Succeeded' %}
+        <div class ="good_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>
         <div class="text-box"> {{ log | safe }} </div>
         <form action="/generate_prefect_dbt_core_template" method="POST">
@@ -14,7 +14,7 @@
             <button type="submit" name="generate_prefect_dbt_core_button" value="true">Generate Template</button>
         </form>
     {%- else%}
-        <div class ="bad_condition"> {{ git_check_status }} </div>
+        <div class ="bad_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>
         <div class="text-box"> {{ log | safe }} </div>
     {%- endif%}
