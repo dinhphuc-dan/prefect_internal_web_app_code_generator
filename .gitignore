@@ -25,5 +25,4 @@ profiles.yml
 prefect*
 *.egg-info/
 *.egg
-
-
+__pycache__/
