@@ -90,8 +90,8 @@ def generate_prefect_dbt_core_template():
             run = dbt_object.push_generated_template_to_prefect_agent_dbt_github()
             log =  log + text_formatter(command=command, text=repr(run))
 
-            session['generated_file_name'] = dbt_object.file_name
-            session['generated_file_location'] = str(dbt_object._write_file_location)
+            session['prefect_dbt_generated_file_name'] = dbt_object.file_name
+            session['prefect_dbt_generated_file_location'] = str(dbt_object._write_file_location)
 
             action_status = 'Succeeded'
         except Exception as e:
@@ -116,8 +116,8 @@ def deploy_dbt_command_to_prefect():
         try:
             if request.form['dbt_command'].strip(): 
                 dbt_command =  request.form['dbt_command'].strip()
-                command = f'python {session.get("generated_file_name")} --deploy true --command "{dbt_command}" '
-                run = subprocess.run(command, shell=True, cwd=Path(session.get('generated_file_location')), capture_output=True, check=True)
+                command = f'python {session.get("prefect_dbt_generated_file_name")} --deploy true --command "{dbt_command}" '
+                run = subprocess.run(command, shell=True, cwd=Path(session.get('prefect_dbt_generated_file_location')), capture_output=True, check=True)
                 log = text_formatter(command= command, text=repr(run))
                 action_status = 'Succeeded'
             else:
@@ -160,8 +160,8 @@ def generate_prefect_airbyte_template():
             run = airbyte_object.push_generated_template_to_prefect_airbyte_github()
             log =  log + text_formatter(command=command, text=repr(run))
 
-            session['generated_file_name'] = airbyte_object.file_name
-            session['generated_file_location'] = str(airbyte_object._write_file_location)
+            session['prefect_airbyte_generated_file_name'] = airbyte_object.file_name
+            session['prefect_airbyte_generated_file_location'] = str(airbyte_object._write_file_location)
 
             action_status = 'Succeeded'
 
@@ -176,6 +176,29 @@ def generate_prefect_airbyte_template():
     else:
         return redirect(url_for('git_check'))
 
+@app.route("/deploy_airbyte_flow_to_prefect", methods=['GET', 'POST'])
+@auth_required
+# using decorator auth_required to show login dialog
+def deploy_airbyte_flow_to_prefect():
+    action_name = 'Deploy Airbyte Flow to Prefect'
+    clicked_button_status = request.form.get('deploy_to_prefect', None)
+    # when user click button, flask will send a post request
+    if request.method == 'POST' and clicked_button_status == 'true':
+        try:
+            command = f'python {session.get("prefect_airbyte_generated_file_name")} --deploy "true" '
+            run = subprocess.run(command, shell=True, cwd=Path(session.get('prefect_airbyte_generated_file_location')), capture_output=True, check=True)
+            log = text_formatter(command= command, text=repr(run))
+            action_status = 'Succeeded'
+        except Exception as e:
+            try:
+                log = text_formatter(repr(e.stderr))
+            except AttributeError:
+                log = text_formatter(repr(e))
+            action_status = 'Failed'
+        return render_template('deploy_airbyte_flow_to_prefect.html', log=log, action_name=action_name,action_status=action_status)
+    # when user refresh page, flask will send a get request
+    else:
+        return redirect(url_for('generate_prefect_airbyte_template'))
 
 
 
