@@ -2,11 +2,13 @@ from flask import Flask, render_template, request, redirect, make_response, Resp
 from utilities import auth_required, text_formatter
 from dotenv import load_dotenv
 
-from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
+
 from waitress import serve
 from pathlib import Path
 import subprocess
 
+from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
+from test_prefect_airbyte_orchestration import GeneratePrefectAirbyteJinjaTemplate
 
 load_dotenv()
 app = Flask(__name__)
@@ -25,11 +27,18 @@ def login():
 def git_check(clicked_button_status=None):
     action_name = 'Git Check'
     # when user click button, flask will send a post request
-    clicked_button_status = request.form.get('check_button')
-    if request.method == 'POST' and clicked_button_status == 'true':
-        try:
-            path_to_git = Path.cwd() / 'prefect_dbt_core_orchestration'
+    prefect_airbyte_clicked_button_status = request.form.get('prefect_airbyte_check_button', None)
+    prefect_dbt_clicked_button_status = request.form.get('prefect_dbt_check_button',None)
 
+    if request.method == 'POST':
+        if prefect_airbyte_clicked_button_status == 'true':
+            path_to_git = Path.cwd() / 'test_prefect_airbyte_orchestration'
+            action_name = action_name + ' Prefect Airbyte'
+        elif prefect_dbt_clicked_button_status == 'true':
+            path_to_git = Path.cwd() / 'prefect_dbt_core_orchestration'
+            action_name = action_name + ' Prefect Dbt Core'
+
+        try:
             command = f'git status'
             run = subprocess.run(command, shell=True, cwd=path_to_git, capture_output=True, check=True)
             log = text_formatter(command=command, text=repr(run))
@@ -126,7 +135,46 @@ def deploy_dbt_command_to_prefect():
 
 
 ''' This section is for Prefect Airbyte Deployment '''
+@app.route("/generate_prefect_airbyte_template", methods=['GET', 'POST'])
+@auth_required
+# using decorator auth_required to show login dialog
+def generate_prefect_airbyte_template():
+    action_name = 'Generate Template'
+    clicked_button_status = request.form.get('generate_prefect_airbyte_button', None)
+    # when user click button, flask will send a post request
+    if request.method == 'POST' and clicked_button_status == 'true':
+        try:
+            # getting value airbyte_object_name_in_prefect when user fills form and remove any whitespace
+            airbyte_object_name_in_prefect: str = request.form['airbyte_object_name_in_prefect'].strip() 
 
+            airbyte_object = GeneratePrefectAirbyteJinjaTemplate(
+                slack_channel = 'govo',
+                airbyte_object_name=airbyte_object_name_in_prefect
+            )
+            
+            command = f'generate prefect airbyte temmplate'
+            airbyte_object.generate_prefect_airbyte_jinja_template()
+            log = text_formatter(command=command, text='generate prefect airbyte temmplate succeessfully')
+
+            command = f'push generated file to github'
+            run = airbyte_object.push_generated_template_to_prefect_airbyte_github()
+            log =  log + text_formatter(command=command, text=repr(run))
+
+            session['generated_file_name'] = airbyte_object.file_name
+            session['generated_file_location'] = str(airbyte_object._write_file_location)
+
+            action_status = 'Succeeded'
+
+        except Exception as e:
+            try:
+                log = text_formatter(repr(e.stderr))
+            except AttributeError:
+                log = text_formatter(repr(e))
+            action_status = 'Failed'
+        return render_template('generate_prefect_airbyte_template.html', log=log, action_name=action_name,action_status=action_status)
+    # when user refresh page, flask will send a get request
+    else:
+        return redirect(url_for('git_check'))
 
 
 
@@ -140,12 +188,12 @@ if __name__ == "__main__":
 
 
 
-# test
+#test
     
-    # dbt_core_operation_name_in_prefect = "test-dbt-core"
-    # dbt_object = GeneratePrefectDbtCoreJinjaTemplate(
-    #             dbt_core_object_name=dbt_core_operation_name_in_prefect
+    # prefect_airbyte_object = "airbyte-connection-realtime"
+    # airbyte_object = GeneratePrefectAirbyteJinjaTemplate(
+    #             dbt_core_object_name=prefect_airbyte_object
     #         )
-    # print(dbt_object._write_file_location)
-    # dbt_object.generate_prefect_dbt_core_jinja_template()
-    # # dbt_object.push_generated_template_to_prefect_agent_dbt_github()
+    # print(airbyte_object._write_file_location)
+    # airbyte_object.generate_prefect_airbyte_jinja_template()
+    # airbyte_object.push_generated_template_to_prefect_agent_github()

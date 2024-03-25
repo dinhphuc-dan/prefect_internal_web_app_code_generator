@@ -5,6 +5,7 @@
         <div class ="good_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>
         <div class="text-box"> {{ log | safe }} </div>
+        {%- if action_name == 'Git Check Prefect Dbt Core' %}
         <form action="/generate_prefect_dbt_core_template" method="POST">
             <input type="text" 
                 name="dbt_core_object_name_in_prefect" 
@@ -13,6 +14,16 @@
             />
             <button type="submit" name="generate_prefect_dbt_core_button" value="true">Generate Template</button>
         </form>
+        {%- elif action_name == 'Git Check Prefect Airbyte' %}
+        <form action="/generate_prefect_airbyte_template" method="POST">
+            <input type="text" 
+                name="airbyte_object_name_in_prefect" 
+                id = 'airbyte_object_name_in_prefect'
+                placeholder="Your airbyte Json block name in Prefect" 
+            />
+            <button type="submit" name="generate_prefect_airbyte_button" value="true">Generate Template</button>
+        </form>
+        {% endif %}
     {%- else%}
         <div class ="bad_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>

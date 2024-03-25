@@ -13,7 +13,7 @@ env.bak/
 venv.bak/
 
 # local test
-test.py
+test*
 my_logs.log
 unzipfile/
 zipfile/
