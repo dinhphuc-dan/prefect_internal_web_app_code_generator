@@ -55,5 +55,5 @@ def text_formatter(text, command=None):
     current_time = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
     message = f"{current_time} -- {message}"
     if command:
-        message = f"<br><br>{command.upper()} RESULT: <br> &nbsp;&nbsp;&nbsp;&nbsp; {message}"
+        message = f"<br><br>COMMAND: {command} with result as: <br> &nbsp;&nbsp;&nbsp;&nbsp; {message}"
     return message

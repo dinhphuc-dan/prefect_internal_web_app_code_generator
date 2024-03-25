@@ -1,0 +1,24 @@
+{%- extends 'base.html' %}
+
+{%- block body %}
+    {%- if action_status == 'Succeeded' %}
+        <div class ="good_condition"> {{ action_name ~ " " ~action_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+        <form action="/" method="POST">
+            <button type="submit" name="check_button" value="true">Back to login page</button>
+        </form>
+    {%- else%}
+        <div class ="bad_condition"> {{ action_name ~ " " ~action_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+        <form method="POST">
+            <input type="text" 
+                name="dbt_command" 
+                id = 'dbt_command'
+                placeholder="Dbt Command to deploy to Prefect" 
+            />
+            <button type="submit" name="deploy_to_prefect" value="true">Deploy</button>
+        </form>
+    {%- endif%}
+{%- endblock %}
