@@ -1,8 +1,8 @@
 version: "3.9"
 services:  
-  prefect-dbt-test:
+  prefect-internal-web-app-code-generator:
     image: test-prefect-internal-web-app-code-generator:test01
-    container_name: prefect-dbt-test
+    container_name: prefect-internal-web-app-code-generator
     restart: unless-stopped
     env_file:
       - .env
