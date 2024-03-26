@@ -7,6 +7,7 @@ from waitress import serve
 from pathlib import Path
 import subprocess
 import os
+import re
 
 from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
 from prefect_airbyte_connections_orchestration import GeneratePrefectAirbyteJinjaTemplate
@@ -32,10 +33,12 @@ def git_check(clicked_button_status=None):
 
     if request.method == 'POST':
         if prefect_airbyte_clicked_button_status == 'true':
-            path_to_git = Path.cwd() / 'test_prefect_airbyte_orchestration'
+            github_name = re.search(r'\/[\S]+',os.getenv('GIT_PREFECT_AIRBYTE_ORCHESTRATION_NAME')).group().split('/')[1]
+            path_to_git = Path.cwd() / github_name
             action_name = action_name + ' Prefect Airbyte'
         elif prefect_dbt_clicked_button_status == 'true':
-            path_to_git = Path.cwd() / 'prefect_dbt_core_orchestration'
+            github_name = re.search(r'\/[\S]+',os.getenv('GIT_PREFECT_DBT_CORE_ORCHESTRATION_NAME')).group().split('/')[1]
+            path_to_git = Path.cwd() / github_name
             action_name = action_name + ' Prefect Dbt Core'
 
         try:
