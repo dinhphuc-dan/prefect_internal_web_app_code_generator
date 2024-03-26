@@ -52,3 +52,8 @@ button {
   color: rgb(7, 7, 7);
   font-size: 2rem;
 }
+.no_condition_description {
+  color: rgb(7, 7, 7);
+  font-size: 1rem;
+  font-style: italic;
+}

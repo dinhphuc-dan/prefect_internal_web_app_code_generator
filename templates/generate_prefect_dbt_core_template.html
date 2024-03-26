@@ -5,6 +5,11 @@
         <div class ="good_condition"> {{ action_name ~ " " ~action_status }} </div>
         <div class ="no_condition"> Log </div>
         <div class="text-box"> {{ log | safe }} </div>
+        <div class ="no_condition"> Continue to deploy to Prefect </div>
+        <div class ="no_condition_description"> 
+            Deploy will overwrite existing Prefect Deployment if it exists <br>
+            and <b>reset all configs such as schedule time</b> back to None
+        </div>
         <form action="/deploy_dbt_command_to_prefect" method="POST">
             <input type="text" 
                 name="dbt_command" 
@@ -12,6 +17,10 @@
                 placeholder="Dbt Command to deploy to Prefect" 
             />
             <button type="submit" name="deploy_to_prefect" value="true">Deploy</button>
+        </form>
+        <div class ="no_condition"> or </div>
+        <form action="/" method="POST">
+            <button type="submit" name="check_button" value="true">Back to login page</button>
         </form>
     {%- else%}
         <div class ="bad_condition"> {{ action_name ~ " " ~action_status }} </div>

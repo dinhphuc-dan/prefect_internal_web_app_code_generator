@@ -1,22 +1,11 @@
 version: "3.9"
 services:  
   prefect-dbt-test:
-    image: test-prefect-dbt-core:test03
+    image: test-prefect-internal-web-app-code-generator:test01
     container_name: prefect-dbt-test
     restart: unless-stopped
     env_file:
       - .env
     entrypoint: ./entrypoint.sh
-    command: 
-
-    
-# https://<token>@github.com/owner/repo.git
-# ARG APP_EXE="AppName.exe"
-# ENV _EXE=${APP_EXE}
-
-# # Build a shell script because the ENTRYPOINT command doesn't like using ENV
-# RUN echo "#!/bin/bash \n mono ${_EXE}" > ./entrypoint.sh
-# RUN chmod +x ./entrypoint.sh
-
-# # Run the generated shell script.
-# ENTRYPOINT ["./entrypoint.sh"]
+    ports:
+      - 192.168.1.127:9090:9090 

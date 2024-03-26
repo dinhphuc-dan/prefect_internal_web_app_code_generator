@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, make_response, Response, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, current_app
 from utilities import auth_required, text_formatter
 from dotenv import load_dotenv
 
@@ -6,15 +6,16 @@ from dotenv import load_dotenv
 from waitress import serve
 from pathlib import Path
 import subprocess
+from prefect.blocks.system import Secret
+import os
 
 from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
 from test_prefect_airbyte_orchestration import GeneratePrefectAirbyteJinjaTemplate
 
+# for local testing
 load_dotenv()
-app = Flask(__name__)
-app.config.from_prefixed_env()
-app.secret_key = "DataTeamForever"
 
+app = Flask(__name__)
 @app.route("/", methods=['GET', 'POST'])
 @auth_required
 # using decorator auth_required to show login dialog
@@ -84,7 +85,7 @@ def generate_prefect_dbt_core_template():
             
             command = f'generate prefect dbt temmplate'
             dbt_object.generate_prefect_dbt_core_jinja_template()
-            log = text_formatter(command=command, text='generate prefect dbt temmplate succeessfully')
+            log = text_formatter(command=command, text=f'generate file {dbt_object.file_name} Succeessfully')
 
             command = f'push generated file to github'
             run = dbt_object.push_generated_template_to_prefect_agent_dbt_github()
@@ -148,13 +149,12 @@ def generate_prefect_airbyte_template():
             airbyte_object_name_in_prefect: str = request.form['airbyte_object_name_in_prefect'].strip() 
 
             airbyte_object = GeneratePrefectAirbyteJinjaTemplate(
-                slack_channel = 'govo',
                 airbyte_object_name=airbyte_object_name_in_prefect
             )
             
             command = f'generate prefect airbyte temmplate'
             airbyte_object.generate_prefect_airbyte_jinja_template()
-            log = text_formatter(command=command, text='generate prefect airbyte temmplate succeessfully')
+            log = text_formatter(command=command, text=f'generate file {airbyte_object.file_name} Succeessfully')
 
             command = f'push generated file to github'
             run = airbyte_object.push_generated_template_to_prefect_airbyte_github()
@@ -203,20 +203,15 @@ def deploy_airbyte_flow_to_prefect():
 
 
 if __name__ == "__main__":
-    app.run(
-            debug=True,
-            host='0.0.0.0',
-            port=9090
-    )
-
-
-
-#test
+    # load env variables
+    app.config.from_prefixed_env()
+    app.secret_key =os.getenv('SESSION_SECRET_KEY')
+    serve(app, host="0.0.0.0", port=9090)
     
-    # prefect_airbyte_object = "airbyte-connection-realtime"
-    # airbyte_object = GeneratePrefectAirbyteJinjaTemplate(
-    #             dbt_core_object_name=prefect_airbyte_object
-    #         )
-    # print(airbyte_object._write_file_location)
-    # airbyte_object.generate_prefect_airbyte_jinja_template()
-    # airbyte_object.push_generated_template_to_prefect_agent_github()
+    
+    # local test
+    # app.run(
+    #         debug=True,
+    #         host='0.0.0.0',
+    #         port=9090
+    # )
