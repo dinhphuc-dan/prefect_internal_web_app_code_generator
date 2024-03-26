@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, current_app
+from flask import Flask, render_template, request, redirect, url_for, session
 from utilities import auth_required, text_formatter
 from dotenv import load_dotenv
 
@@ -6,11 +6,10 @@ from dotenv import load_dotenv
 from waitress import serve
 from pathlib import Path
 import subprocess
-from prefect.blocks.system import Secret
 import os
 
 from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
-from test_prefect_airbyte_orchestration import GeneratePrefectAirbyteJinjaTemplate
+from prefect_airbyte_connections_orchestration import GeneratePrefectAirbyteJinjaTemplate
 
 # for local testing
 load_dotenv()
