@@ -16,7 +16,7 @@ def auth_required(f):
         if request.authorization and request.authorization.username == current_app.config['APP_USERNAME'] and request.authorization.password == current_app.config['APP_PASSWORD']:
             return f(*args, **kwargs)
         else:
-            resp = make_response(f(*args, **kwargs), 401)
+            resp = make_response("<h1> Access denied! </h1>", 401)
             resp.headers['WWW-Authenticate'] = 'Basic realm="Login Required"'
         return resp
     return decorated
