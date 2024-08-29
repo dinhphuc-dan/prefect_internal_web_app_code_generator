@@ -1,0 +1,15 @@
+{%- extends 'base.html' %}
+
+{%- block body %}
+    <div class ="no_condition_description"> 
+        <b>- app_related_role</b> will get app_nam from <b>App Category table of each companies.</b>
+        <br><br> 
+        <b>- mkt_performance_related_role</b> related will get mkt_name from table <b>MKT Level of Volio.</b>
+        <br><br> 
+        <b>- start_date</b> is the start date to get <b>Data from two tables</b>. Data will be query from start_date to today.
+        <br><br> 
+    </div>
+    <div class ="no_condition"> working on it, wait a moment </div>
+    <div class="loader"></div>
+    <script> window.location.replace('/superset_automation_actions_result'); </script>
+{%- endblock %}

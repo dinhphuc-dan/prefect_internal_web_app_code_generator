@@ -26,3 +26,4 @@ prefect*
 *.egg-info/
 *.egg
 __pycache__/
+superset_automation

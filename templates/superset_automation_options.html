@@ -1,0 +1,38 @@
+{%- extends 'base.html' %}
+
+{%- block body %}
+    <div class ="no_condition_description"> 
+        <b>- app_related_role</b> will get app_nam from <b>App Category table of each companies.</b>
+        <br><br> 
+        <b>- mkt_performance_related_role</b> related will get mkt_name from table <b>MKT Level of Volio.</b>
+        <br><br> 
+        <b>- start_date</b> is the start date to get <b>Data from two tables</b>. Data will be query from start_date to today.
+        <br><br> 
+    </div>
+    <div class ="no_condition"> Choose your options </div>
+    <form action="/superset_automation_actions_loading" method="POST">
+        <select class="superset_role_type_options" name="superset_role_type_options">
+            {% for val_1 in list_role_type_options %}
+                <option value="{{ val_1 }}">{{ val_1 }}</option>
+            {% endfor %}
+        </select>
+        <select class="superset_company_options" name="superset_company_options">
+            {% for val_2 in list_companies %}
+                <option value="{{ val_2 }}">{{ val_2 }}</option>
+            {% endfor %}
+        </select>
+        {%- if action_name != 'Update Table All Role Sercurities' %}
+        <input type="date" 
+            name="superset_date_input" 
+            id = "superset_date_input"
+        />
+        {%- endif%}
+        <div class="container">
+            <button type="submit" name="superset_start_action" value="true">
+                {{ "Start " ~action_name}}
+            </button>
+        </div>
+        <input type="hidden" name="action_name" value="{{action_name}}"/>
+        <input type="hidden" name="action_id" value="{{action_id}}"/>
+    </form>
+{%- endblock %}

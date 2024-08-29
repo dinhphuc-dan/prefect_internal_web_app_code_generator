@@ -1,0 +1,17 @@
+{%- extends 'base.html' %}
+
+{%- block body %}
+    {%- if action_status == 'Succeeded' %}
+        <div class ="good_condition"> {{ action_name ~ " " ~action_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+        <div class ="no_condition"> or </div>
+        <form action="/" method="POST">
+            <button type="submit" name="check_button" value="true">Back to login page</button>
+        </form>
+    {%- else%}
+        <div class ="bad_condition"> {{ action_name ~ " " ~action_status }} </div>
+        <div class ="no_condition"> Log </div>
+        <div class="text-box"> {{ log | safe }} </div>
+    {%- endif%}
+{%- endblock %}

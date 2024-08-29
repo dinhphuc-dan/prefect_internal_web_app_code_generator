@@ -8,9 +8,12 @@ from pathlib import Path
 import subprocess
 import os
 import re
+import io
+from contextlib import redirect_stdout
 
 from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
 from prefect_airbyte_connections_orchestration import GeneratePrefectAirbyteJinjaTemplate
+from superset_automation import Superset, Bigquery, handle_user_input
 
 # for local testing
 load_dotenv()
@@ -30,6 +33,7 @@ def git_check(clicked_button_status=None):
     # when user click button, flask will send a post request
     prefect_airbyte_clicked_button_status = request.form.get('prefect_airbyte_check_button', None)
     prefect_dbt_clicked_button_status = request.form.get('prefect_dbt_check_button',None)
+    superset_automation_button_status = request.form.get('superset_automation',None)
 
     if request.method == 'POST':
         if prefect_airbyte_clicked_button_status == 'true':
@@ -40,6 +44,10 @@ def git_check(clicked_button_status=None):
             github_name = re.search(r'\/[\S]+',os.getenv('GIT_PREFECT_DBT_CORE_ORCHESTRATION_NAME')).group().split('/')[1]
             path_to_git = Path.cwd() / github_name
             action_name = action_name + ' Prefect Dbt Core'
+        elif superset_automation_button_status == 'true':
+            github_name = re.search(r'\/[\S]+',os.getenv('GIT_SUPERSET_AUTOMATION_NAME')).group().split('/')[1]
+            path_to_git = Path.cwd() / github_name
+            action_name = action_name + ' Superset Automation'
 
         try:
             command = f'git status'
@@ -202,18 +210,104 @@ def deploy_airbyte_flow_to_prefect():
     else:
         return redirect(url_for('generate_prefect_airbyte_template'))
 
+''' This section is for Superset Automation'''
+@app.route("/superset_automation_options", methods=['GET', 'POST'])
+@auth_required
+# using decorator auth_required to show login dialog
+def superset_automation_options():
+    list_companies = ['govo', 'jacat', 'fidra']
+    # when user click button, flask will send a post request
+    create_new_roles_and_role_security_button_status = request.form.get('create_new_roles_and_role_security', None)
+    update_table_all_role_sercurity_button_status = request.form.get('update_table_all_role_sercurity',None)
+    update_mkt_app_permissions_button_status = request.form.get('update_mkt_app_permissions',None)
+
+    if request.method == 'POST':
+        if create_new_roles_and_role_security_button_status == 'true':
+            list_role_type_options = ['app_related_role', 'mkt_performance_related_role']
+            action_name = 'Create New Roles and Role Sercurity'
+            action_id = 1
+        elif update_table_all_role_sercurity_button_status == 'true':
+            list_role_type_options = ['app_related_role', 'mkt_performance_related_role']
+            action_name = 'Update Table All Role Sercurities'
+            action_id = 2
+        elif update_mkt_app_permissions_button_status == 'true':
+            list_role_type_options = ['update_permission_mkt_app']
+            action_name = 'Update Mkt App Permissions'
+            action_id = 3
+        return render_template('superset_automation_options.html', 
+                               list_role_type_options = list_role_type_options, 
+                               action_name = action_name, 
+                               list_companies = list_companies,
+                               action_id = action_id
+        )
+    # when user refresh page, flask will send a get request
+    else:
+        return redirect(url_for('git_check'))
+
+@app.route("/superset_automation_actions_loading", methods=['GET', 'POST'])
+@auth_required
+# using decorator auth_required to show login dialog
+def superset_automation_actions_loading():
+    session['superset_role_type_option'] = request.form.get('superset_role_type_options', None)
+    session['superset_company'] = request.form.get('superset_company_options', None)
+    session['superset_start_date'] = request.form.get('superset_date_input', None)
+    session['superest_action_name'] = request.form.get('action_name', None)
+    session['superset_action_id'] = request.form.get('action_id', None)
+    if request.method == 'POST' and request.form['superset_start_action'] == 'true':
+        return render_template('superset_automation_actions_loading.html')
+
+
+@app.route("/superset_automation_actions_result", methods=['GET', 'POST'])
+@auth_required
+# using decorator auth_required to show login dialog
+def superset_automation_actions_result():
+    role_type_option = session.get('superset_role_type_option')
+    company = session.get('superset_company')
+    start_date = session.get('superset_start_date')
+    action_name =  session.get('superest_action_name')
+    action_id = session.get('superset_action_id')
+    query, list_dataset, row_level_security_id_query_condition, table_id_query_condition, company_name = handle_user_input(fuction_type=role_type_option, company_name=company)
+    bg = Bigquery()
+    list_object = bg.get_object_from_bigquery(query=query, start_date=start_date)
+    superset = Superset(
+        base_url= os.getenv('SUPERSET_BASE_URL'),
+        username = os.getenv('SUPERSET_USERNAME'),
+        password = os.getenv('SUPERSET_PASSWORD') 
+    )
+    try:
+        # getting print message from fuction using redirect_stdout:https://stackoverflow.com/questions/16571150/how-to-capture-stdout-output-from-a-python-function-call
+        f = io.StringIO()
+        if action_id == '1':
+            with redirect_stdout(f):
+                superset.create_role(list_object = list_object, list_dataset=list_dataset, table_id_query_condition=table_id_query_condition)
+        elif action_id == '2':
+            with redirect_stdout(f):
+                superset.update_table_all_row_level_security(tables_schema=row_level_security_id_query_condition, list_dataset=list_dataset, table_id_query_condition=table_id_query_condition)
+        elif action_id == '3':
+            with redirect_stdout(f):
+                superset.update_users_app_permission(objects = list_object, company_name = company_name)
+        log = text_formatter(text=f.getvalue())
+        action_status = 'Succeeded'
+    except Exception as e:
+        try:
+            log = text_formatter(repr(e.stderr))
+        except AttributeError:
+            log = text_formatter(repr(e))
+        action_status = 'Failed'
+    return render_template('superset_automation_actions_result.html', log=log, action_name=action_name,action_status=action_status)
+        
 
 
 if __name__ == "__main__":
     # load env variables
     app.config.from_prefixed_env()
     app.secret_key =os.getenv('SESSION_SECRET_KEY')
-    serve(app, host="0.0.0.0", port=9090)
+    # serve(app, host="0.0.0.0", port=9000)
     
     
     # local test
-    # app.run(
-    #         debug=True,
-    #         host='0.0.0.0',
-    #         port=9090
-    # )
+    app.run(
+            debug=True,
+            host='0.0.0.0',
+            port=9000
+    )
