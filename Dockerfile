@@ -1,17 +1,17 @@
 # FROM prefecthq/prefect:2.13.5-python3.10
-FROM python:3.10.0-alpine3.15 
+FROM python:3.10.0-slim 
 
 # upgrade pip to the latest version and config timezone
-RUN apk --no-cache upgrade \
+RUN apt-get update \
     && pip install --upgrade pip \
-    && apk --no-cache add tzdata
+    && apt-get install tzdata -y
 
 ENV TZ=Asia/Ho_Chi_Minh
 
 # install git and bash
-RUN apk update \
-    && apk --no-cache add git \
-    && apk --no-cache add bash
+RUN apt-get update \
+    && apt-get install git -y \
+    && apt-get install bash -y 
 
 WORKDIR /app
 

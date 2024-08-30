@@ -1,7 +1,7 @@
 version: "3.9"
 services:  
   prefect-internal-web-app-code-generator:
-    image: phucdinh/prefect-internal-web-app-code-generator:v1.0.1
+    image: phucdinh/prefect-internal-web-app-code-generator:v1.1.0
     container_name: prefect-internal-web-app-code-generator
     restart: unless-stopped
     env_file:
@@ -10,7 +10,9 @@ services:
     ports:
       - 192.168.1.127:9090:9090
     networks:
-      - data_tool_internal
+      - data_tool
+    depends_on:
+      - superset_api_db
   superset_api_db:
     image: postgres:15
     container_name: superset-api-db
@@ -20,11 +22,11 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - data_tool_internal
+      - data_tool
     ports:
       - 5432:5432
 volumes:
   db_data:
-    external: false
 networks:
-  data_tool_internal:
+  data_tool:
+    name: data_tool

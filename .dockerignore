@@ -11,4 +11,4 @@ Dockerfile
 *.egg-info/
 *.egg
 test*
-superset*
+superset_automation

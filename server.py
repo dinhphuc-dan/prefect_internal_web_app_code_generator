@@ -10,6 +10,7 @@ import os
 import re
 import io
 from contextlib import redirect_stdout
+import argparse
 
 from prefect_dbt_core_orchestration import GeneratePrefectDbtCoreJinjaTemplate
 from prefect_airbyte_connections_orchestration import GeneratePrefectAirbyteJinjaTemplate
@@ -17,6 +18,11 @@ from superset_automation import Superset, Bigquery, handle_user_input
 
 # for local testing
 load_dotenv()
+
+# basic setup for argument throug command line for local testing and development
+_parser=argparse.ArgumentParser()
+_parser.add_argument("--production")
+_args=_parser.parse_args()
 
 app = Flask(__name__)
 @app.route("/", methods=['GET', 'POST'])
@@ -295,19 +301,20 @@ def superset_automation_actions_result():
             log = text_formatter(repr(e))
         action_status = 'Failed'
     return render_template('superset_automation_actions_result.html', log=log, action_name=action_name,action_status=action_status)
-        
-
 
 if __name__ == "__main__":
     # load env variables
     app.config.from_prefixed_env()
     app.secret_key =os.getenv('SESSION_SECRET_KEY')
-    # serve(app, host="0.0.0.0", port=9000)
-    
-    
-    # local test
-    app.run(
-            debug=True,
-            host='0.0.0.0',
-            port=9000
-    )
+
+    # when use tag --production true  
+    # we will run app as in production
+    # else run app in testing mode
+    if _args.production == 'true':
+        serve(app, host="0.0.0.0", port=9090)
+    else: 
+        app.run(
+                debug=True,
+                host='0.0.0.0',
+                port=9000
+        )
