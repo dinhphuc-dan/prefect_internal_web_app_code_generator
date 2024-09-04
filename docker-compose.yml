@@ -1,7 +1,7 @@
 version: "3.9"
 services:  
   prefect-internal-web-app-code-generator:
-    image: phucdinh/prefect-internal-web-app-code-generator:v1.1.0
+    image: phucdinh/prefect-internal-web-app-code-generator:v1.1.1
     container_name: prefect-internal-web-app-code-generator
     restart: unless-stopped
     env_file:
