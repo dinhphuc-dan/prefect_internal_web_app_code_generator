@@ -291,7 +291,7 @@ def superset_automation_actions_result():
                 superset.update_table_all_row_level_security(tables_schema=row_level_security_id_query_condition, list_dataset=list_dataset, table_id_query_condition=table_id_query_condition)
         elif action_id == '3':
             with redirect_stdout(f):
-                superset.update_users_app_permission(objects = list_object, company_name = company_name)
+                superset.update_users_app_permission(objects = list_object, company_name = company_name, bigquery_connection=bg)
         log = text_formatter(text=f.getvalue())
         action_status = 'Succeeded'
     except Exception as e:
