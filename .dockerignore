@@ -7,7 +7,8 @@ Dockerfile
 .venv
 .dockerignore
 .git 
-.env
+.env*
+*env
 *.egg-info/
 *.egg
 test*
