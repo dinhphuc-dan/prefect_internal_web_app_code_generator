@@ -7,7 +7,7 @@ services:
       - path: ./prod.env
     entrypoint: ./entrypoint.sh
     ports:
-      - 192.168.1.127:9090:9090
+      - 192.168.0.72:9090:9090
     networks:
       - data_tool
     depends_on:
