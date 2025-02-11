@@ -1,4 +1,4 @@
-﻿﻿# python 3.10.0
+# python 3.10.0
 
 agate==1.7.1
 aiosqlite==0.20.0
@@ -112,7 +112,6 @@ python-slugify==8.0.4
 pytimeparse==1.1.8
 pytz==2023.4
 pytzdata==2020.1
-pywin32==306
 PyYAML==6.0.1
 readchar==4.0.6
 referencing==0.34.0
