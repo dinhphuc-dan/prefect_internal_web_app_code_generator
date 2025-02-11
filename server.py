@@ -439,8 +439,8 @@ if __name__ == "__main__":
     # we will run app as in production
     # else run app in testing mode
     if _args.production == "true":
-        load_dotenv(dotenv_path=Path("dev.env"), override=True, verbose=True)
-        serve(app, host="0.0.0.0", port=9090)
+        load_dotenv(dotenv_path=Path("pro.env"), override=True, verbose=True)
+        serve(app, port=9090)
     else:
-        load_dotenv(dotenv_path=Path("prod.env"), override=True, verbose=True)
+        load_dotenv(dotenv_path=Path("dev.env"), override=True, verbose=True)
         app.run(debug=True, host="0.0.0.0", port=9000)
