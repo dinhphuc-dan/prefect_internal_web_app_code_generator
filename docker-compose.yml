@@ -1,13 +1,13 @@
 services:  
   prefect-internal-web-app-code-generator:
-    image: phucdinh/prefect-internal-web-app-code-generator:v1.1.3
+    image: phucdinh/prefect-internal-web-app-code-generator:v1.1.4
     container_name: prefect-internal-web-app-code-generator
     restart: unless-stopped
     env_file:
       - path: ./prod.env
     entrypoint: ./entrypoint.sh
     ports:
-      - 192.168.0.72:9090:9090
+      - 9090:9090
     networks:
       - data_tool
     depends_on:
@@ -23,7 +23,7 @@ services:
     networks:
       - data_tool
     ports:
-      - 5432:5432
+      - 5432
 volumes:
   db_data:
 networks:
